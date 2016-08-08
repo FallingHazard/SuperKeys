@@ -46,6 +46,28 @@ public class FileSystem {
     }
   }
   
+  // mines/bigmines/config.yml
+  public File getAConfigFile(String path) {
+    String[] fileParts = path.split("/");
+    
+    if (fileParts.length > 1) {
+      File newFolder = new File(pluginFolder, fileParts[0]);
+      if (!newFolder.exists())
+        newFolder.mkdir();
+      
+      for (int index = 1; index < fileParts.length -1; index ++) {
+        newFolder = new File(new File(fileParts[index - 1]), fileParts[index]);
+        if (!newFolder.exists())
+          newFolder.mkdir();
+      }
+      
+      return new File(newFolder, fileParts[fileParts.length - 1]);
+    }
+    else {
+      return new File(pluginFolder, path);
+    }
+  }
+  
   
   
 }
