@@ -1,0 +1,6 @@
+name: SuperKeys
+main: net.original_gamers.plugin.SuperKeysPlugin
+version: 0.1.7
+commands:
+    tier_add:
+
