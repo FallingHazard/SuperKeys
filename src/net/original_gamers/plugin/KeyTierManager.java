@@ -19,6 +19,8 @@ public class KeyTierManager {
     fileSystem = theSystem;
     plug = plugin;
     
+    loadCrates();
+    
     plug.getServer().getScheduler().scheduleSyncRepeatingTask(plug, new BukkitRunnable() {
       
       @Override
@@ -28,6 +30,19 @@ public class KeyTierManager {
     }, 0L, 20L);
   }
   
+  public void loadCrates() {
+    File[] crateFiles = new File(plug.getDataFolder(), "crates").listFiles();
+    
+    if (crateFiles != null)
+      for (File crateFile : crateFiles) {
+        
+        Map<String, Object> tierData 
+          = YamlConfiguration.loadConfiguration(crateFile).getConfigurationSection("Key Tier").getValues(false);
+        
+        KeyTier newTier = new KeyTier(tierData);
+        keyTiers.put(newTier.getName(), newTier);
+      }
+  }
   
   public KeyTier getKeyTier(String tierName) {
     return keyTiers.get(tierName);

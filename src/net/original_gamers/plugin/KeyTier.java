@@ -1,5 +1,6 @@
 package net.original_gamers.plugin;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,9 @@ import java.util.TreeMap;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.configuration.MemorySection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -43,14 +47,18 @@ public class KeyTier implements ConfigurationSerializable {
     displayName = (String) tierData.get("DisplayName");
  
     rewardInv = Bukkit.createInventory(null, 54);
+    
     List<Map<String, Object>> contents 
       = (List<Map<String, Object>>) tierData.get("Contents");
     
+    List<ItemStack> invItems = new ArrayList<ItemStack>();
     for (Map<String, Object> itemMap : contents) {
-      rewardInv.addItem(ItemStack.deserialize(itemMap));
+      invItems.add(ItemStack.deserialize(itemMap));
     }
+    ItemStack[] invArray = invItems.toArray(new ItemStack[invItems.size()]);
+    rewardInv.setContents(invArray);
     
-    Map<String, Object> serialChestLoc = (Map<String, Object>) tierData.get("ChestLoc");
+    Map<String, Object> serialChestLoc = ((MemorySection) tierData.get("ChestLoc")).getValues(false);
     tierChestLocation = Location.deserialize(serialChestLoc);
     
     tierChestLocation
@@ -84,7 +92,7 @@ public class KeyTier implements ConfigurationSerializable {
   public Inventory getRewardInv() {
     return rewardInv;
   }
-
+  
   @Override
   public Map<String, Object> serialize() {
     Map<String, Object> serialTier = new TreeMap<String, Object>();
@@ -94,7 +102,10 @@ public class KeyTier implements ConfigurationSerializable {
     
     List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
     for (ItemStack someItem : rewardInv.getContents()) {
-      contents.add(someItem.serialize());
+      if (someItem != null)
+        contents.add(someItem.serialize());
+      else
+        contents.add(new ItemStack(Material.AIR).serialize());
     }
     serialTier.put("Contents", contents);
     

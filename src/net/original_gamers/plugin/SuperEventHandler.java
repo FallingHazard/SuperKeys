@@ -93,9 +93,6 @@ public class SuperEventHandler implements Listener {
           clicker.sendMessage(String.format("That requires a %s key!", clickedCrateName));
         }
       }
-      else {
-        clicker.sendMessage("That is not a crate");
-      }
       
     }
   }
