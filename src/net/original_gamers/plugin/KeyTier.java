@@ -34,7 +34,9 @@ public class KeyTier implements ConfigurationSerializable {
     displayName = ChatColor.translateAlternateColorCodes('&', newDisplayName);
     tierName = ChatColor.stripColor(displayName);
     tierChestLocation = newTierChestLocation;
-    rewardInv = Bukkit.createInventory(null, 54);
+    
+    String invRewardTitle = String.format("The Special Crates:%s", tierName);
+    rewardInv = Bukkit.createInventory(null, 54, invRewardTitle);
     
     tierChestLocation
       .getBlock()
@@ -46,7 +48,8 @@ public class KeyTier implements ConfigurationSerializable {
     keySpawnChance = (int) tierData.get("SpawnChance");
     displayName = (String) tierData.get("DisplayName");
  
-    rewardInv = Bukkit.createInventory(null, 54);
+    String invRewardTitle = String.format("The Special Crates:%s", tierName);
+    rewardInv = Bukkit.createInventory(null, 54, invRewardTitle);
     
     List<Map<String, Object>> contents 
       = (List<Map<String, Object>>) tierData.get("Contents");
@@ -89,6 +92,10 @@ public class KeyTier implements ConfigurationSerializable {
     return rewardInv.getContents()[random.nextInt(54)].clone();
   }
   
+  public int getKeyChance() {
+    return keySpawnChance;
+  }
+  
   public Inventory getRewardInv() {
     return rewardInv;
   }
@@ -112,6 +119,10 @@ public class KeyTier implements ConfigurationSerializable {
     serialTier.put("ChestLoc", tierChestLocation.serialize());
     
     return serialTier;
+  }
+
+  public String getDisplayName() {
+    return displayName;
   }
   
 }

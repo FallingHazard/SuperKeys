@@ -1,5 +1,10 @@
 package net.original_gamers.plugin;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -9,42 +14,68 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
-
-import net.md_5.bungee.api.ChatColor;
 
 public class SuperEventHandler implements Listener {
   private final KeyTierManager manager;
+  private final FileSystem fileSystem;
+  private final List<UUID> keyWorlds = new ArrayList<UUID>();
   
-  public SuperEventHandler(KeyTierManager newManager) {
+  public SuperEventHandler(KeyTierManager newManager, FileSystem system) {
     manager = newManager;
+    fileSystem = system;
   }
   
   @EventHandler(priority=EventPriority.HIGHEST)
   public void onBreak(BlockBreakEvent event) {
-      Block brokenBlock = event.getBlock();
-      if (brokenBlock.hasMetadata("crateId")) {
-        Player breaker = event.getPlayer();
+    Block brokenBlock = event.getBlock();
+    if (brokenBlock.hasMetadata("crateId")) {
+      Player breaker = event.getPlayer();
+      
+      if (breaker.isOp()) {
+        String crateName = brokenBlock.getMetadata("crateId").get(0).asString();
         
-        if (breaker.isOp()) {
-          String crateName = brokenBlock.getMetadata("crateId").get(0).asString();
-          
-          if (manager.removeKeyTier(crateName)) {
-            breaker.sendMessage("Tier deleted");
-          }
-          else {
-            breaker.sendMessage("Weird error");;
-          }
+        if (manager.removeKeyTier(crateName)) {
+          breaker.sendMessage("Tier deleted");
         }
         else {
-          event.setCancelled(true);
-          breaker.sendMessage(ChatColor.RED + "Don't break mikemys' crates!");
+          breaker.sendMessage("Weird error");;
+        }
+      }
+      else {
+        event.setCancelled(true);
+        breaker.sendMessage(ChatColor.RED + "Don't break mikemys' crates!");
+      }
+    }
+  }
+  
+  @EventHandler(priority=EventPriority.MONITOR)
+  public void onKeyBlockBreak(BlockBreakEvent event) {
+    Block brokenBlock = event.getBlock();
+    if (keyWorlds.contains(brokenBlock.getLocation().getWorld().getUID())) {
+      if (!event.isCancelled()) {
+        List<ItemStack> spawnedKeys = manager.maybeTriggerKeySpawn();
+        
+        Player breaker = event.getPlayer();
+        
+        for (ItemStack key : spawnedKeys) {
+          breaker.getInventory().addItem(key);
+          String keyMsg = String.format("You got a %s key!", key.getItemMeta().getDisplayName());
+          breaker.sendMessage(keyMsg);
         }
       }
     }
+  }
+  
+  @EventHandler
+  public void onInvClose(InventoryCloseEvent event) {
+    String invTitle = event.getInventory().getTitle();
+    if (invTitle.contains("The Special Crates")) {
+      manager.saveOneKeyTier(invTitle.split(":")[1]);
+    }
+  }
   
   @EventHandler(priority=EventPriority.HIGHEST)
   public void onInteract(PlayerInteractEvent event) {

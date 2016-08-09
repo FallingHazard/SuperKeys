@@ -2,6 +2,8 @@ package net.original_gamers.plugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -12,9 +14,12 @@ public class FileSystem {
   private final File pluginFolder;
   private final File configFile;
   private final FileConfiguration config;
+  private final Map<String, File> configFileCache;
   
   public FileSystem(JavaPlugin somePlugin) {
     plugin = somePlugin;
+    
+    configFileCache = new HashMap<String, File>();
     
     pluginFolder = somePlugin.getDataFolder();
     
@@ -48,6 +53,11 @@ public class FileSystem {
   
   // mines/bigmines/config.yml
   public File getAConfigFile(String path) {
+    File cachedFile = configFileCache.get(path);
+    
+    if (cachedFile != null)
+      return cachedFile;
+    
     String[] fileParts = path.split("/");
     
     if (fileParts.length > 1) {

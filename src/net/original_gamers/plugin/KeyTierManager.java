@@ -3,12 +3,15 @@ package net.original_gamers.plugin;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class KeyTierManager {
   private final Map<String, KeyTier> keyTiers = new HashMap<String, KeyTier>();
@@ -18,16 +21,8 @@ public class KeyTierManager {
   public KeyTierManager(FileSystem theSystem, JavaPlugin plugin) {
     fileSystem = theSystem;
     plug = plugin;
-    
+   
     loadCrates();
-    
-    plug.getServer().getScheduler().scheduleSyncRepeatingTask(plug, new BukkitRunnable() {
-      
-      @Override
-      public void run() {
-        saveKeyTiers();
-      }
-    }, 0L, 20L);
   }
   
   public void loadCrates() {
@@ -62,22 +57,48 @@ public class KeyTierManager {
     return keyTiers.containsValue(tierToTest);
   }
   
-  public void saveKeyTiers() {
+  public void saveAllKeyTiers() {
     for (KeyTier tier : keyTiers.values()) {
-      File tierConfigFile
-        = fileSystem.getAConfigFile(String.format("crates/%s.yml", tier.getName()));
-      
-      FileConfiguration tierConfig 
-        = YamlConfiguration.loadConfiguration(tierConfigFile);
-      
-      tierConfig.set("Key Tier", tier.serialize());
-      
-      // For now
-      try {
-        tierConfig.save(tierConfigFile);
-      } catch (IOException e) {
-        e.printStackTrace();
+      saveOneKeyTier(tier);
+    }
+  }
+  
+  public void saveOneKeyTier(String tierName) {
+    saveOneKeyTier(keyTiers.get(tierName));
+  }
+  
+  public List<ItemStack> maybeTriggerKeySpawn() {
+    Random random = new Random();
+    List<ItemStack> spawnedKeys = new LinkedList<ItemStack>();
+    
+    for (KeyTier tier : keyTiers.values()) {
+      if (random.nextInt(tier.getKeyChance()) == 1) {
+        spawnedKeys.add(SuperKeysPlugin.createKeyItem(tier.getDisplayName(), 1));
       }
     }
+    
+    return spawnedKeys;
+  }
+  
+  public void saveOneKeyTier(KeyTier tier) {
+    File tierConfigFile
+    = fileSystem.getAConfigFile(String.format("crates/%s.yml", tier.getName()));
+  
+    FileConfiguration tierConfig 
+      = YamlConfiguration.loadConfiguration(tierConfigFile);
+    
+    tierConfig.set("Key Tier", tier.serialize());
+    
+    plug.getServer().getScheduler().scheduleAsyncDelayedTask(plug, new Runnable() {
+      
+      @Override
+      public void run() {
+        try {
+            tierConfig.save(tierConfigFile);
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }, 1L);
   }
 }
