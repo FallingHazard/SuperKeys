@@ -19,8 +19,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 
+import com.avaje.ebeaninternal.server.subclass.MethodWriteReplace;
+
+import lombok.Getter;
+
 public class KeyTier implements ConfigurationSerializable {
-  private final Location tierChestLocation;
+  @Getter private final Location tierChestLocation;
   private final String tierName;
   private final Inventory rewardInv;
   
@@ -28,15 +32,29 @@ public class KeyTier implements ConfigurationSerializable {
   
   public static Plugin plugin = Bukkit.getPluginManager().getPlugin("SuperKeys");
   
-  private int keySpawnChance = 2000000000;
+  private int keySpawnChance;
+  
+  public static final int DEFAULT_SPAWN_CHANCE = 2000000000;
   
   public KeyTier(String newDisplayName, Location newTierChestLocation) {
+    this(newDisplayName, newTierChestLocation, DEFAULT_SPAWN_CHANCE);
+  }
+  
+  public KeyTier(String newDisplayName, Location newTierChestLocation, 
+                 int newKeySpawnChance) {
+    this(newDisplayName, newTierChestLocation, newKeySpawnChance, new ItemStack[54]);
+  }
+  
+  public KeyTier(String newDisplayName, Location newTierChestLocation,
+                 int newKeySpawnChance, ItemStack[] rewards) {
     displayName = ChatColor.translateAlternateColorCodes('&', newDisplayName);
     tierName = ChatColor.stripColor(displayName);
     tierChestLocation = newTierChestLocation;
     
     String invRewardTitle = String.format("The Special Crates:%s", tierName);
     rewardInv = Bukkit.createInventory(null, 54, invRewardTitle);
+    
+    keySpawnChance = newKeySpawnChance;
     
     tierChestLocation
       .getBlock()

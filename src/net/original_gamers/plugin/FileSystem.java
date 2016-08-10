@@ -5,18 +5,23 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+@Singleton
 public class FileSystem {
-  private final JavaPlugin plugin;
+  private final SuperKeysPlugin plugin;
   private final File pluginFolder;
   private final File configFile;
   private final FileConfiguration config;
   private final Map<String, File> configFileCache;
   
-  public FileSystem(JavaPlugin somePlugin) {
+  @Inject
+  public FileSystem(SuperKeysPlugin somePlugin) {
     plugin = somePlugin;
     
     configFileCache = new HashMap<String, File>();

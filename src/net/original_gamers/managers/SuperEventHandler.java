@@ -1,8 +1,11 @@
-package net.original_gamers.plugin;
+package net.original_gamers.managers;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -18,15 +21,21 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
+import lombok.RequiredArgsConstructor;
+import net.original_gamers.command.CreateTierCommand;
+import net.original_gamers.command.ListKeyTiersCmd;
+import net.original_gamers.command.RemoveKeyTierCmd;
+import net.original_gamers.command.SpawnKeyCmd;
+import net.original_gamers.plugin.AllowedWorldsData;
+import net.original_gamers.plugin.FileSystem;
+import net.original_gamers.plugin.KeyTier;
+
+@Singleton
+@RequiredArgsConstructor(onConstructor=@__(@Inject))
 public class SuperEventHandler implements Listener {
   private final KeyTierManager manager;
   private final FileSystem fileSystem;
-  private final List<UUID> keyWorlds = new ArrayList<UUID>();
-  
-  public SuperEventHandler(KeyTierManager newManager, FileSystem system) {
-    manager = newManager;
-    fileSystem = system;
-  }
+  private final AllowedWorldsData allowedWorldData;
   
   @EventHandler(priority=EventPriority.HIGHEST)
   public void onBreak(BlockBreakEvent event) {
@@ -37,7 +46,7 @@ public class SuperEventHandler implements Listener {
       if (breaker.isOp()) {
         String crateName = brokenBlock.getMetadata("crateId").get(0).asString();
         
-        if (manager.removeKeyTier(crateName)) {
+        if (manager.deleteKeyTier(crateName)) {
           breaker.sendMessage("Tier deleted");
         }
         else {
@@ -54,7 +63,7 @@ public class SuperEventHandler implements Listener {
   @EventHandler(priority=EventPriority.MONITOR)
   public void onKeyBlockBreak(BlockBreakEvent event) {
     Block brokenBlock = event.getBlock();
-    if (keyWorlds.contains(brokenBlock.getLocation().getWorld().getUID())) {
+    if (allowedWorldData.worldIsAllowed(brokenBlock.getWorld())) {
       if (!event.isCancelled()) {
         List<ItemStack> spawnedKeys = manager.maybeTriggerKeySpawn();
         
@@ -62,7 +71,12 @@ public class SuperEventHandler implements Listener {
         
         for (ItemStack key : spawnedKeys) {
           breaker.getInventory().addItem(key);
-          String keyMsg = String.format("You got a %s key!", key.getItemMeta().getDisplayName());
+          breaker.updateInventory();
+          
+          String keyMsg = String.format("%s You got a %s key&s!", 
+                                         ChatColor.RED, 
+                                         key.getItemMeta().getDisplayName(), 
+                                         ChatColor.RED);
           breaker.sendMessage(keyMsg);
         }
       }

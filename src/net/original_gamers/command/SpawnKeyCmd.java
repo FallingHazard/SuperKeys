@@ -1,4 +1,7 @@
-package net.original_gamers.plugin;
+package net.original_gamers.command;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -7,13 +10,16 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import lombok.RequiredArgsConstructor;
+import net.original_gamers.managers.KeyTierManager;
+import net.original_gamers.plugin.KeyTier;
+import net.original_gamers.plugin.SuperKeysCore;
+
+@Singleton
+@RequiredArgsConstructor(onConstructor=@__(@Inject))
 public class SpawnKeyCmd implements CommandExecutor {
   private final KeyTierManager tierManager;
   
-  public SpawnKeyCmd(KeyTierManager manager) {
-    tierManager = manager;
-  }
-
   @Override
   public boolean onCommand(CommandSender sender, Command cmd, String label,
       String[] args) {
@@ -26,7 +32,7 @@ public class SpawnKeyCmd implements CommandExecutor {
         if (tierToSpawnKeyFor != null) {
           int amtToSpawn = args.length >= 2 ? Integer.parseInt(args[1]) : 1;
           
-          ItemStack keyItem = SuperKeysPlugin.createKeyItem(tierDisplayName, amtToSpawn);
+          ItemStack keyItem = SuperKeysCore.createKeyItem(tierDisplayName, amtToSpawn);
           Player cmdSender = (Player) sender;
           cmdSender.setItemInHand(keyItem);
         }
