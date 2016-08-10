@@ -106,8 +106,12 @@ public class KeyTier implements ConfigurationSerializable {
   public ItemStack getRandomReward() {
     // Bad optimisation whatever..
     Random random = new Random();
+    ItemStack reward = rewardInv.getContents()[random.nextInt(54)];
     
-    return rewardInv.getContents()[random.nextInt(54)].clone();
+    if (reward == null)
+      return new ItemStack(Material.AIR);
+    else
+      return reward.clone();
   }
   
   public int getKeyChance() {

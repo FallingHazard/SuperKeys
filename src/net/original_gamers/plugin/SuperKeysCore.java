@@ -52,7 +52,7 @@ public class SuperKeysCore {
     ItemStack keyItem = new ItemStack(Material.LEVER);
     ItemMeta keyMeta = keyItem.getItemMeta();
     
-    keyMeta.setDisplayName(name);
+    keyMeta.setDisplayName(name + " key");
     
     List<String> lore = new ArrayList<String>();
     lore.add(ChatColor.MAGIC + (ChatColor.AQUA + "This is a super key"));
@@ -62,7 +62,7 @@ public class SuperKeysCore {
     
     keyItem.setItemMeta(keyMeta);
     
-    keyItem.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
+    keyItem.addUnsafeEnchantment(Enchantment.DURABILITY, 25);
     keyItem.setAmount(amount);
     return keyItem;
   }

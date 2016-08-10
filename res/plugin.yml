@@ -3,4 +3,8 @@ main: net.original_gamers.plugin.SuperKeysPlugin
 version: 0.1.7
 commands:
     tier_add:
+    key_spawn:
+    remove_tier:
+    tier_list:
+    tierworlds:
 

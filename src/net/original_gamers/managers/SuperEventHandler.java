@@ -122,9 +122,14 @@ public class SuperEventHandler implements Listener {
             }
             
             ItemStack reward = rewardTier.getRandomReward();
+            
+            clicker.getInventory().addItem(reward);
+            clicker.updateInventory();
+            
+            clicker.sendMessage(ChatColor.GREEN + "You got lucky!");
           }
           else {
-            clicker.sendMessage(String.format("That requires a %s key!", clickedCrateName));
+            clicker.sendMessage(String.format(ChatColor.RED + "That requires a %s key!", clickedCrateName));
           }
         }
         else if (clicker.isOp()) {
@@ -135,7 +140,10 @@ public class SuperEventHandler implements Listener {
           
         }
         else {
-          clicker.sendMessage(String.format("That requires a %s key!", clickedCrateName));
+          clicker.sendMessage(String.format("%sThat requires a %s%s key%s!", 
+                                            ChatColor.AQUA, 
+                                            clickedCrateName, 
+                                            ChatColor.GOLD, ChatColor.AQUA));
         }
       }
       
@@ -145,7 +153,7 @@ public class SuperEventHandler implements Listener {
   public static boolean itemIsAKey(ItemStack someItem) {
     return someItem.getType().equals(Material.LEVER) 
            && someItem.getEnchantmentLevel(Enchantment.DURABILITY) == 25
-           && someItem.getItemMeta().getLore().get(0).equals(ChatColor.stripColor("Super Key"));
+           && ChatColor.stripColor(someItem.getItemMeta().getLore().get(0)).contains("super key");
   }
   
 }
