@@ -70,8 +70,9 @@ public class AllowedWorldsData {
     List<String> loadedAllowedWorlds 
       = (List<String>) fileSystem.getBaseConfig().getList("Allowed-Worlds");
     
-    for (String allowedWorldName : loadedAllowedWorlds) {
-      allowedWorlds.add(UUID.fromString(allowedWorldName));
-    }
+    if (loadedAllowedWorlds != null)
+      for (String allowedWorldName : loadedAllowedWorlds) {
+        allowedWorlds.add(UUID.fromString(allowedWorldName));
+      }
   }
 }

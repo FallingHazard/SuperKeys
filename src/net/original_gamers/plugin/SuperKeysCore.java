@@ -38,10 +38,10 @@ public class SuperKeysCore {
   public void enable() {
     plugin.registerEventListener(eventHandler);
     
-    plugin.registerCommand("tier_add", createTier);
-    plugin.registerCommand("key_spawn", spawnKey);
-    plugin.registerCommand("tier_list", listTiers);
-    plugin.registerCommand("remove_tier", removeTiers);
+    plugin.registerCommand("tieradd", createTier);
+    plugin.registerCommand("keyspawn", spawnKey);
+    plugin.registerCommand("tierlist", listTiers);
+    plugin.registerCommand("removetier", removeTiers);
     plugin.registerCommand("tierworlds", tierWorldCmd);
     
     tierManager.loadCrates();
